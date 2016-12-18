@@ -7,27 +7,22 @@
  *
  *	License: MIT
  *	Created: 05/2011
- *	Updated: 01/2015
+ *	Updated: 12/17/2016
  *
  *	HTML Usage: <img src="path/to/paperdoll.php?id=123" />
  *
  *	Previewing: Visit the link directly in your browser: http://www.domain.com/path/to/paperdoll.php?id=123
  */
-
 if(isset($_REQUEST['id']))
 	$loadID = $_REQUEST['id'];
-
 $paperdoll = new Paperdoll($loadID);
-
 class Paperdoll
 {
 	var $Debug;
 	var $Logs;
 	
 	var $Load;
-
 	var $Char;
-
 	var $NameTitle;
 	var $Index;
 	var $Female;
@@ -46,10 +41,8 @@ class Paperdoll
 	
 	var $Width;
 	var $Height;
-
 	var $Database;
-
-	function Paperdoll($load)
+	function __construct($load)
 	{
 		$this->Load = $load;
 		$this->Initialize();
@@ -121,7 +114,7 @@ class Paperdoll
 		if($this->Debug)
 			$this->Logs[] = "Initializing Character...";
 	
-		$q = "SELECT * FROM " . TBL_CHARS . " WHERE id='" . $this->Load . "'";
+		$q = "SELECT * FROM " . TBL_CHARS . " WHERE char_id='" . $this->Load . "'";
 		
 		if($this->Debug)
 			$this->Logs[] = "Query Database: ".$q;
@@ -145,7 +138,7 @@ class Paperdoll
 		if($this->Debug)
 			$this->Logs[] = "Removing Guild Strings...";
 	
-		$this->NameTitle = str_replace(array("(Order)", "(Chaos)"), "", $this->Char['noto_title']);
+		$this->NameTitle = str_replace(array("(Order)", "(Chaos)"), "", $this->Char['char_nototitle']);
 		
 		if($this->Debug)
 			$this->Logs[] = "Done!";
@@ -156,7 +149,7 @@ class Paperdoll
 		if($this->Debug)
 			$this->Logs[] = "Setting Body Index...";
 	
-		if($this->Char['female'])
+		if($this->Char['char_female'])
 		{
 			$this->Index = "13";
 			$this->Female = "1";
@@ -179,7 +172,7 @@ class Paperdoll
 		if($this->Debug)
 			$this->Logs[] = "Setting BodyHue...";
 	
-		$this->Hue = $this->Char['bodyhue'];
+		$this->Hue = $this->Char['char_bodyhue'];
 		$this->Gump = "1";
 		
 		if($this->Debug)
@@ -204,7 +197,6 @@ class Paperdoll
 		$items = array(array());
 		$doSort = false;
 		$num = 0;
-
 		for ($i = 0; $item = mysqli_fetch_array($result); $i++)
 		{
 			if($this->Debug)
@@ -226,7 +218,6 @@ class Paperdoll
 				$items['layers'][$num++] = $item['layer_id'];
 			}
 		}
-
 		if ($doSort)
 		{
 			if($this->Debug)
@@ -236,7 +227,7 @@ class Paperdoll
 		}
 				
 		if($this->Debug)
-			$this->Logs[] = "Insert Items into Variables...";
+			$this->Logs[] = "Insert Items into Variables..."; //--------------------------------------------------------------------------------------------------------------------------
 				
 		for ($i = 0; $i < $num; $i++)
 		{
@@ -244,7 +235,7 @@ class Paperdoll
 			$this->Index .= "," . $items['ids'][$i];
 			$this->Hue .= "," . $items['hues'][$i];
 					  
-			if ($this->Char['female'] == 1)
+			if ($this->Char['char_female'] == 1)
 			{				
 				$this->Female .= ",1";
 			}
@@ -280,7 +271,7 @@ class Paperdoll
 		if($this->Debug)
 			$this->Logs[] = "Initializing Mul files...";
 	
-		$this->Hues_Mul = fopen("hues.mul", "rb");
+		$this->Hues_Mul = fopen(MUL_PATH . "hues.mul", "rb");
 				
 		if (!$this->Hues_Mul)
 		{
@@ -290,8 +281,7 @@ class Paperdoll
 			die("Unable to open hues.mul - ERROR\nDATAEND!");
 			exit;
 		}
-
-		$this->TileData_Mul = fopen("tiledata.mul", "rb");		
+		$this->TileData_Mul = fopen(MUL_PATH . "tiledata.mul", "rb");		
 		
 		if (!$this->TileData_Mul)
 		{
@@ -303,8 +293,7 @@ class Paperdoll
 			die("Unable to open tiledata.mul - ERROR\nDATAEND!");
 			exit;
 		}
-
-		$this->Gump_Mul = fopen("gumpart.mul", "rb");
+		$this->Gump_Mul = fopen(MUL_PATH . "gumpart.mul", "rb");
 		
 		if (!$this->Gump_Mul)
 		{
@@ -317,8 +306,7 @@ class Paperdoll
 			die("Unable to open gumpart.mul - ERROR\nDATAEND!");
 			exit;
 		}
-
-		$this->Gump_Idx = fopen("gumpidx.mul", "rb");
+		$this->Gump_Idx = fopen(MUL_PATH . "gumpidx.mul", "rb");
 		
 		if (!$this->Gump_Idx)
 		{
@@ -392,10 +380,8 @@ class Paperdoll
 				$female = 1;
 			else
 				$female = 0;
-
 			if ($hue < 1 || $hue > 65535)
 				$hue = 0;
-
 			if($isGump > 0 || $index == 12 || $index == 13)
 				$isGump = 1;
 			else
@@ -403,10 +389,8 @@ class Paperdoll
 				
 			if($this->Debug)
 				$this->Logs[] = "Index: " . $index . " * Female: " . $female . " * Hue: " . $hue . " * Gump: " . $isGump;
-
 			if ($index > 0x3FFF || $index <= 0 || $hue > 65535 || $hue < 0)
 				continue;
-
 			if ($isGump == 1) // Male/Female Gumps or Gump Param
 				$gumpID = $index;
 			else
@@ -418,7 +402,6 @@ class Paperdoll
 				
 				if (feof($this->TileData_Mul))
 					continue;
-
 				// Read the flags
 				$flags = $this->GetValueFromFile($this->TileData_Mul, POST_HS ? 8 : 4);
 				
@@ -442,15 +425,16 @@ class Paperdoll
 						if($this->Debug)
 							$this->Logs[] = "Gump ID is Invalid, move to next Item...";
 						
-						continue;
 					}
 
-					if ($gumpID < 10000)
+					if ($gumpID < 10000)  // For GumpID less than 10k, adjust for male/female versions
 					{
 						if ($female)
-							$gumpID += 60000;
+							if ($gumpID < 940) $gumpID += 60000; // Some elf items have only one version
+								else $gumpid += 50000;
 						else
 							$gumpID += 50000;
+				
 					}
 				}
 				else
@@ -461,10 +445,8 @@ class Paperdoll
 					continue;
 				}
 			}
-
 			if($this->Debug)
 				$this->Logs[] = "Load The Raw Gump...";
-
 			$this->LoadRawGump($gumpID, $hue);
 		}
 	}
@@ -473,26 +455,19 @@ class Paperdoll
 	{
 		$sendData = '';
 		$color32 = array();
-
 		fseek($this->Gump_Idx, $gumpID * 12, SEEK_SET);
-
 		if (feof($this->Gump_Idx))
 			return; // Invalid gumpid, reached end of gumpindex.
-
 		$lookUp = $this->GetValueFromFile($this->Gump_Idx, 4);
-
 		if ($lookUp == -1)
 		{
 			if ($index >= 60000)
 				$index -= 10000;
 				
 			fseek($this->Gump_Idx, $gumpID * 12, SEEK_SET);
-
 			if (feof($this->Gump_Idx)) // Invalid gumpid, reached end of gumpindex.
 				return;
-
 			$lookUp = $this->GetValueFromFile($this->Gump_Idx, 4);
-
 			if ($lookUp == -1)
 				return; // Gumpindex returned invalid lookup.
 		}
@@ -509,19 +484,13 @@ class Paperdoll
 		$sendData .= sprintf("Size: " . $gumpSize . "\n");
 		$sendData .= sprintf("Height: " . $gumpHeight . "\n");
 		$sendData .= sprintf("Width: " . $gumpWidth . "\n");
-
 		if ($gumpWidth <= 0 || $gumpHeight <= 0)
 			return; // Gump width or height was less than 0.
-
 		fseek($this->Gump_Mul, $lookUp, SEEK_SET);
-
 		$heightTable = $this->GetValueFromFile($this->Gump_Mul, ($gumpHeight * 4));
-
 		if (feof($this->Gump_Mul))
 			return; // Invalid gumpid, reached end of gumpfile.
-
 		$sendData .= sprintf("DATASTART:\n");
-
 		if ($hue <= 0)
 		{
 			if($this->Debug)
@@ -530,24 +499,19 @@ class Paperdoll
 			for ($y = 1; $y < $gumpHeight; $y++)
 			{
 				fseek($this->Gump_Mul, $heightTable[$y] * 4 + $lookUp, SEEK_SET);
-
 				// Start of row
 				$x = 0;
-
 				while ($x < $gumpWidth)
 				{
 					$rle = $this->GetValueFromFile($this->Gump_Mul, 4);  // Read the RLE data
 					$length = ($rle >> 16) & 0xFFFF;  // First two bytes - how many pixels does this color cover
 					$color = $rle & 0xFFFF;  // Second two bytes - what color do we apply
-
 					// Begin RGB value decoding
 					$r = ($color >> 10) * 8;
 					$g = (($color >> 5) & 0x1F) * 8;
 					$b = ($color & 0x1F) * 8;
-
 					if ($r > 0 || $g > 0 || $b > 0)
 						$sendData.= sprintf($x . ":" . $y . ":" . $r . ":" . $g . ":" . $b . ":" . $length . "***");
-
 					$x += $length;
 				}
 			}
@@ -559,45 +523,35 @@ class Paperdoll
 		
 			$hue = $hue - 1;
 			$originalHue = $hue;
-
 			if ($hue > 0x8000)
 				$hue = $hue - 0x8000;
-
 			if ($hue > 3001) // Bad hue will cause a crash
 				$hue = 1;
-
 			$colors = ($hue / 8) * 4;
 			$colors = 4 + $hue * 88 + $colors;
 			
 			if($this->Debug)
 				$this->Logs[] = "COLOR: " . $colors;
-
 			fseek($this->Hues_Mul, $colors, SEEK_SET);
-
 			for ($i = 0; $i < 32; $i++)
 			{
 				$color32[$i] = $this->GetValueFromFile($this->Hues_Mul, 2);
 				$color32[$i] |= 0x8000;
 			}
-
 			for ($y = 1; $y < $gumpHeight; $y++)
 			{
 				fseek($this->Gump_Mul, $heightTable[$y] * 4 + $lookUp, SEEK_SET);
-
 				// Start of row
 				$x = 0;
-
 				while ($x < $gumpWidth)
 				{
 					$rle = $this->GetValueFromFile($this->Gump_Mul, 4);  // Read the RLE data
 					$length = ($rle >> 16) & 0xFFFF;  // First two bytes - how many pixels does this color cover
 					$color = $rle & 0xFFFF;  // Second two bytes - what color do we apply
-
 					// Begin RGB value decoding
 					$r = $color >> 10;
 					$g = ($color >> 5) & 0x1F;
 					$b = $color & 0x1F;
-
 					// Check if we're applying a special hue (skin hues), if so, apply only to grays
 					if ($originalHue > 0x8000 && $r == $g && $r == $b)
 					{
@@ -620,14 +574,11 @@ class Paperdoll
 					
 					if(($r * 8 > 0) || $g * 8 > 0 || $b * 8 > 0)
 						$sendData.= sprintf($x . ":" . $y . ":" . $newR . ":" . $newG . ":" . $newB . ":" . $length . "***");
-
 					$x += $length;
 				}
 			}
 		}
-
 		$sendData .= sprintf("DATAEND!");
-
 		$this->AddGump($sendData);
 	}
 	
@@ -639,7 +590,6 @@ class Paperdoll
 		imageColorTransparent($this->Image_Temp, $transColor);	
 		imagealphablending($this->Image_Temp, true);
 	}
-
 	function FormatText()
 	{
 		// Separate name and skill title
@@ -654,11 +604,10 @@ class Paperdoll
 		{
 			$toRemove = array("(Order)","(Chaos)");
 			$textResult = str_replace($toRemove, "", $this->NameTitle);
-			$this->Name = $this->Char['name'];
+			$this->Name = $this->Char['char_name'];
 			$this->Title = "";
 		}
 	}
-
 	function KillFiles()
 	{
 		fclose($this->Hues_Mul);
@@ -667,7 +616,6 @@ class Paperdoll
 		fclose($this->Gump_Idx);
 		exit;
 	}
-
 	function GetValueFromFile($file, $length)
 	{
 		if (($value = fread($file, $length)) == false)
@@ -677,18 +625,18 @@ class Paperdoll
 			
 			return -1;
 		}
-		
+
 		$value = $this->UnpackSigned($value, $length * 8);
 		
 		if($this->Debug)
 			$this->Logs[] = "Get Value From " . 
-			($file == $this->TileData_Mul ? "TileData:" : 
-			($file == $this->Hues_Mul ? "Hues:" : 
-			($file == $this->Gump_Mul ? "Gump:" : 
-			($file == $this->Gump_Idx ? "GumpIndex:" : 
-			"File")))) . " returned ". $value[1] . "...";
+		($file == $this->TileData_Mul ? "TileData:" : 
+		($file == $this->Hues_Mul ? "Hues:" :	
+		($file == $this->Gump_Mul ? "Gump:" : 
+		($file == $this->Gump_Idx ? "GumpIndex:" :
+		"File")))) . " returned ". var_dump($value) . "...";
+		return var_dump($value);
 		
-		return $value[1];
 	}
 	
 	function UnpackSigned($data, $bits = 8)
@@ -711,7 +659,6 @@ class Paperdoll
 		
 		return unpack($code, $data);
 	}
-
 	function AddGump($sendData)
 	{
 		if (strpos($sendData, "ERROR"))
@@ -733,7 +680,6 @@ class Paperdoll
 		
 			if ($val == "DATAEND!")
 				break;			
-
 			$val = explode(":", $val);
 			
 			$x = intval($val[0]);
@@ -747,38 +693,29 @@ class Paperdoll
 			if ($r || $g || $b)
 			{
 				$colorAllocate = imagecolorallocate($this->Image_Temp, $r, $g, $b);
-
 				for ($i = 0; $i < $length; $i++)
 					imagesetpixel($this->Image_Temp, $x + $i, $y, $colorAllocate);
 			}
 		}
 	}
-
 	function AddText()
 	{	
 		$textColor = imagecolorallocate($this->Image_Temp, 255, 255, 0);
 		$pos = 135 - (strlen($this->Name) * 3.5);
-
 		if ($pos < 0)
 			$pos = 0;
-
 		imagestring($this->Image_Temp, 4, $pos, 240, $this->Name, $textColor);
-
 		$pos = 140 - (strlen($this->Title) * 3.5);
-
 		if ($pos < 0)
 			$pos = 0;
-
 		imagestring($this->Image_Temp, 3, $pos, 255, $this->Title, $textColor);
 	}
-
 	function CreateGump()
 	{	
 		header("Content-type: image/png");
 		imagepng($this->Image_Temp);
 		imagedestroy($this->Image_Temp);		
 	}
-
 	function striphtmlchars($text)
 	{
 		$text = str_replace("&amp;", "&", $text);
@@ -786,5 +723,4 @@ class Paperdoll
 		return $text;
 	}
 }
-
 ?>
