@@ -7,16 +7,13 @@
  *
  *	License: MIT
  *	Created: 05/2011
- *	Updated: 01/2015
+ *	Updated: 12/17/2016
  */
-
 $database = new MySQLDB();
-
 class MySQLDB
 {
     var $Connection;
-
-	function MySQLDB()
+	function __construct()
 	{
 		$die = false;
 		
@@ -35,7 +32,6 @@ class MySQLDB
 	function fquery($query)
 	{
 		$result = mysqli_query($this->Connection, $query);
-
 		$dbarray = mysqli_fetch_array($result);
 		
 		return $dbarray;
@@ -44,42 +40,33 @@ class MySQLDB
 	function mquery($query)
 	{
 		$result = mysqli_query($this->Connection, $query);
-
 		for($i = 0; $row = mysqli_fetch_array($result); $i++)
 		{
 			$dbarray[$i] = $row;
 		}
-
 		return $dbarray;
 	}
-
    	function GetTableList()
 	{
 		return $this->mquery("SHOW TABLES FROM " . DB_NAME);
    	}
-
 	function Optimize($query)
 	{
 		$query = explode(" ", $query);
 		$op = $query[0];
-
 		if($op == "REPLACE")
 			$table = $query[2];
 		else
 			$table = $query[1];
-
 		$query = null;
 	
 		if($op == "DELETE" || $op == "UPDATE" || $op == "REPLACE")
 		{
 			$q = "OPTIMIZE TABLE '" . $table . "'";
-
 			if($this->query($q))
 				return true;
 		}
-
 		return false;
 	}
 }
-
 ?>
